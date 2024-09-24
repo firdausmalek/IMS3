@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Products</title>
+    <style>
+        /* Black-and-white futuristic theme */
+        body {
+            background-color: #ffffff; /* Dark background */
+            color: #ffffff; /* Light text */
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1, h2 {
+            color: #ffffff;
+            text-shadow: 0 0 10px #ffffff, 0 0 20px #ffffff;
+            margin-bottom: 20px;
+        }
+
+        form {
+            background-color: #ffffff; /* Form background */
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 2px solid #ffffff;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+            display: inline-block;
+        }
+
+        label {
+            color: #000000;
+            font-size: 1.2rem;
+        }
+
+        input[type="text"],
+        input[type="submit"] {
+            padding: 10px;
+            font-size: 1.1rem;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+        }
+
+        input[type="text"] {
+            width: 75%;
+            background-color: #333;
+            color: #ffffff;
+        }
+
+        input[type="submit"] {
+            background-color: #e2e2e200;
+            color: #000;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            
+        }
+
+        input[type="submit"]:hover {
+            background-color: #ffffff;
+            transform: translateY(-3px);
+            box-shadow: 0 0 15px #00ffcc;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: #000000;
+            border: 1px solid #ffffff;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+
+        table, th, td {
+            border: 1px solid #ffffff;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            color: #ffffff;
+        }
+
+        th {
+            background-color: #ffffff;
+            color: #000;
+        }
+
+        tr:nth-child(even) {
+            background-color: #333;
+        }
+
+        /* Bluetooth interface styles */
+        #bluetooth-interface {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 0;
+        }
+
+        #bluetooth-interface button {
+            padding: 5px 10px;
+            font-size: 14px;
+            color: #000;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            border: none;
+            border-radius: 5px;
+        }
+
+        #bluetooth-interface button:hover {
+            background-color: #e2e2e200;
+            transform: translateY(-3px);
+            box-shadow: 0 0 15px #00ffcc;
+        }
+
+        #status {
+            color: #000;
+            margin-top: 10px;
+        }
+
+        .hidden {
+        display: none;
+        }
+
+
+        /* Responsive design */
+        @media only screen and (max-width: 600px) {
+            form {
+                width: 100%;
+            }
+
+            input[type="text"] {
+                width: 100%;
+            }
+
+            #bluetooth-interface {
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Manage Products</h1>
+
+    <!-- Form to add a product -->
+    <h2>Input Serial Number</h2>
+    <form id="productForm" action="{{ url_for('view_products') }}" method="POST">
+        <label for="Serial_Number">Serial Number:</label>
+        <input type="text" id="Serial_Number" name="Serial_Number" required>
+
+        <!-- Bluetooth Connect button beside the search bar -->
+        <div id="bluetooth-interface">
+            <button id="connectButton" type="button">Connect</button>
+        </div><br>
+    </form>
+
+    <!-- Form to download CSV -->
+    <form action="{{ url_for('dashboard') }}" method="POST">
+        <input type="submit" value="Download CSV">
+    </form>
+
+    <!-- Flash messages display -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Display the existing products in a table -->
+    <h2>Scanned RFID Data</h2>
+    <p id="status">Status: Disconnected</p>
+    <p id="rfidData">RFID Data: None</p>
+    
+    <div id="statusMessage"></div>
+    
+    <!-- Table to display scanned RFID data -->
+    <table id="productTable">
+        <thead>
+            <tr>
+                <th>Serial Number</th>
+                <th>Name</th>
+                <th>Location</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Scanned RFID data will be inserted here dynamically -->
+        </tbody>
+    </table>
+    
+
+    <!-- Save button below the table -->
+    <button id="saveButton">Save Table</button>
+
+    <!-- Section to display saved data -->
+    <h2>Saved Data</h2>
+    <div id="savedData">No data saved yet.</div>
+
+    <p id="rfidData">RFID Data: None</p>
+
+    <div id="statusMessage"></div>
+
+
+    <!-- Bluetooth JavaScript Code -->
+    <script>
+  const connectButton = document.getElementById('connectButton');
+const statusText = document.getElementById('status');
+const rfidDataText = document.getElementById('rfidData');
+const serialNumberInput = document.getElementById('Serial_Number');
+const productForm = document.getElementById('productForm');
+const saveButton = document.getElementById('saveButton');
+const statusMessage = document.getElementById('statusMessage');
+
+let device, server, service, characteristic;
+let scannedUIDs = new Set(); // To store scanned UIDs
+
+// Reset input fields and clear RFID data on page load
+window.onload = () => {
+    productForm.reset();
+    statusText.innerText = "Status: Disconnected";
+    rfidDataText.innerText = "RFID Data: None";
+    clearTable(); // Clear the table
+};
+
+//Ensure your script runs after the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', () => {
+    clearTable();// Your initialization code here
+});
+
+console.log('Status Message Element:', statusMessage);
+
+function clearTable() {
+    const tableBody = document.querySelector('#productTable tbody');
+    if (tableBody) {
+        tableBody.innerHTML = ''; // This clears all existing rows in the table
+    } else {
+        console.error('Table body element not found.');
+    }
+}
+
+function updateTableWithScannedData(scannedData) {
+    const tableBody = document.querySelector('#productTable tbody');
+    if (tableBody) {
+        // Clear existing table rows
+        tableBody.innerHTML = '';
+
+        // Add a new row for each scanned RFID entry
+        scannedData.forEach(data => {
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+                <td>${data.Serial_Number}</td>
+                <td>${data.Name}</td>
+                <td>${data.Location}</td>
+                <td>${data.Status}</td>
+            `;
+
+            // Append the new row to the table body
+            tableBody.appendChild(row);
+        });
+    } else {
+        console.error('Table body element not found.');
+    }
+}
+
+// Simulate a scanned RFID event
+const scannedData = [
+    { Serial_Number: '123456', Name: 'Product A', Location: 'Shelf 1', Status: 'Available' },
+    { Serial_Number: '789101', Name: 'Product B', Location: 'Shelf 2', Status: 'Unavailable' }
+];
+
+// Update table with scanned data
+updateTableWithScannedData(scannedData);
+
+function testUpdateTable() {
+    const tableBody = document.querySelector('#productTable tbody');
+    if (tableBody) {
+        // Clear the table first
+        tableBody.innerHTML = '';
+
+        // Add table cells with placeholder data
+        row.innerHTML = `
+                <td>${item.Serial_Number}</td>
+                <td>${item.Name}</td>
+                <td>${item.Location}</td>
+                <td>${item.Status}</td>
+            `;
+
+        // Append the row to the table body
+        tableBody.appendChild(row);
+    } else {
+        console.error('Table body element not found.');
+    }
+}
+
+
+// Call the function to populate the table with scanned data
+updateTableWithScannedData(scannedData);
+
+
+
+
+
+
+// Function to add a new row to the table
+function addRowToTable(Serial_Number = "Serial_Number", Name = "Name", Location = "Location", Status = "Status") {
+    const tableBody = document.querySelector('#productTable tbody');
+    if (!tableBody) {
+        console.error('Table body element not found.');
+        return;
+    }
+    const newRow = document.createElement('tr');
+    newRow.innerHTML = `${Serial_Number},${Name},${Location},${Status}`;
+    tableBody.appendChild(newRow);
+}
+
+
+// Connect to ESP32 over Bluetooth
+connectButton.addEventListener('click', async () => {
+    try {
+        device = await navigator.bluetooth.requestDevice({
+            filters: [{ name: 'ESP32_RFID' }],
+            optionalServices: ['0000ffe0-0000-1000-8000-00805f9b34fb']
+        });
+
+        server = await device.gatt.connect();
+        service = await server.getPrimaryService('0000ffe0-0000-1000-8000-00805f9b34fb');
+        characteristic = await service.getCharacteristic('0000ffe1-0000-1000-8000-00805f9b34fb');
+
+        statusText.innerText = "Status: Connected";
+
+        characteristic.addEventListener('characteristicvaluechanged', handleCharacteristicValueChanged);
+        await characteristic.startNotifications();
+    } catch (error) {
+        console.error(error);
+        statusText.innerText = "Status: Failed to Connect";
+    }
+});
+
+async function handleCharacteristicValueChanged(event) {
+    let value = new TextDecoder().decode(event.target.value).trim();
+    let formattedValue = formatUID(value); 
+
+    // Log the formatted value directly
+    console.log(formattedValue); // This will log "23 C1 D9 26"
+
+    rfidDataText.innerText = `RFID Data: ${formattedValue}`;
+    serialNumberInput.value = formattedValue; 
+
+    if (!scannedUIDs.has(formattedValue)) {
+        scannedUIDs.add(formattedValue); 
+        scannedData.push(formattedValue); 
+        beep(); 
+        flashGreen(); 
+        
+        // Automatically display the scanned data
+        await checkAndDisplayProduct(formattedValue);
+    } else {
+        handleDuplicateUID(formattedValue); 
+    }
+}
+
+
+async function checkAndDisplayProduct(formattedValue) {  // Accept formattedValue directly
+    try {
+        console.log(`${formattedValue}`);  // Log the formatted UID for debugging
+
+        const response = await fetch('/check_uid', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ uid:formattedValue})  // Use 'uid' (lowercase) for the key
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            if (data.length > 0) {
+                data.forEach(item => {
+                    addRowToTable(item.SerialNumber, item.Name, item.Location, item.Status); // Ensure field names match
+                });
+            } else {
+                console.log("No identical UIDs found in the database.");
+            }
+        } else {
+            const errorMessage = await response.text();
+            console.error('Failed to check UID:', errorMessage);
+        }
+    } catch (error) {
+        console.error('Error checking UID:', error);
+    }
+}
+
+
+
+    // Function to clear the table rows
+    function clearTableRows() {
+        const tableBody = document.querySelector('#productTable tbody');
+        tableBody.innerHTML = ''; // Clear existing rows
+    }
+
+// Update addRowToTable function to accept more parameters
+function addRowToTable(Serial_Number = "Serial_Number" , Name = "Name", Location = "Location", Status = "Status") {
+    const tableBody = document.querySelector('#productTable tbody');
+    const newRow = document.createElement('tr');
+    newRow.innerHTML = `<td>${Serial_Number}</td><td>${Name}</td><td>${Location}</td><td>${Status}</td>`;
+    tableBody.appendChild(newRow);
+}
+
+async function fetchInventory() {
+    try {
+        const response = await fetch('/get_inventory');
+        if (response.ok) {
+            const data = await response.json();
+
+            // Clear existing rows if needed
+            clearTableRows();
+
+            // Populate the table with the fetched data
+            data.forEach(item => {
+                addRowToTable(item.Serial_Number, item.Name, item.Location, item.Status);
+            });
+        } else {
+            console.error('Failed to fetch inventory data');
+        }
+    } catch (error) {
+        console.error('Error fetching inventory:', error);
+    }
+}
+
+
+
+
+
+// Function to format UID
+function formatUID(uid) {
+    return uid.toUpperCase().replace(/(.{2})/g, '$1 ').trim(); // Uppercase and add space every 2 characters
+}
+
+// Function to generate a beep sound
+function beep() {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    oscillator.type = 'sine'; // Wave type
+    oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // Frequency in Hertz
+    oscillator.connect(audioContext.destination);
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.1); // Beep duration of 0.1 seconds
+}
+
+// Function to flash the screen green for new UID
+function flashGreen() {
+    document.body.style.backgroundColor = 'green';
+    setTimeout(() => {
+        document.body.style.backgroundColor = '#ffffff'; // Reset to original color
+    }, 500); // Flash duration
+}
+
+// Function to handle duplicate UID detection
+function handleDuplicateUID(uid) {
+    beepWrong(); // Beep for duplicate entry
+    flashRed(); // Flash the screen red
+    console.log("Duplicate entry detected: " + uid);
+}
+
+// Function to beep for wrong input
+function beepWrong() {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    oscillator.type = 'square'; // Different wave type for error
+    oscillator.frequency.setValueAtTime(300, audioContext.currentTime); // Frequency in Hertz
+    oscillator.connect(audioContext.destination);
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.1); // Beep duration of 0.1 seconds
+}
+
+// Function to flash the screen red
+function flashRed() {
+    document.body.style.backgroundColor = 'red';
+    setTimeout(() => {
+        document.body.style.backgroundColor = '#ffffff'; // Reset to original color
+    }, 500); // Flash duration
+}
+
+// Save scanned UIDs when the save button is pressed
+saveButton.addEventListener('click', async () => {
+    // Display the saved data
+    let savedContent = "<h3>Saved Scanned UIDs</h3><table>";
+    savedContent += "<thead><tr><th>UID</th><th>Product Name</th><th>Location</th><th>Status</th></tr></thead>";
+    savedContent += "<tbody>";
+    scannedData.forEach(uid => {
+        savedContent += `<tr><td>${uid}</td><td>Product Name</td><td>Location</td><td>Status</td></tr>`;
+    });
+    savedContent += "</tbody></table>";
+    document.getElementById('savedData').innerHTML = savedContent;
+
+    // Clear scanned data for future scans
+    scannedData = [];
+});
+
+    </script>
+</body>
+</html>

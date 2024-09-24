@@ -1,0 +1,245 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sapura Inventory System</title>
+    <style>
+        body {
+            background-color: #230cf1;
+            font-family: "Times New Roman", Times, serif;
+            text-align: center;
+        }
+        h1 {
+            color: #0000FF;
+            text-decoration: underline;
+        }
+        a {
+            color: red;
+        }
+        #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80%;
+            margin: 0 auto;
+            background-color: #FFFFFF;
+            padding: 20px;
+            border: 2px solid black;
+        }
+        .sidebar {
+            width: 100px;
+            border-right: 2px solid black;
+        }
+        table {
+            color: black;
+            border: 1px solid;
+            margin-top: 20px;
+        }
+        td {
+            padding: 20px;
+        }
+        .content {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+        }
+        .footer {
+            background-color: #0000FF;
+            color: #FFFFFF;
+            padding: 10px;
+            font-size: 12px;
+            width: 100%;
+        }
+        marquee {
+            font-size: 18px;
+            color: red;
+        }
+        button {
+            padding: 50px;
+            font-size: 35px;
+            width: 175px;
+        }
+        @media only screen and (max-width: 600px) {
+            .content {
+                flex-direction: column;
+            }
+            button {
+                width: 100%;
+                padding: 20px;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>My Name is {{ username }}!</h1>
+
+        <marquee behavior="scroll" direction="left">Demi Agamaku, Bangsaku, Tanahairku!</marquee>
+
+        <div class="content">
+            <table>
+                <tr>
+                    <td><a href='in'><button type="button" style="color:blue;">IN</button></a></td>
+                    <td><a href="out"><button type="button" style="color:red;">OUT</button></a></td>
+                    <td><a href="check"><button type="button" style="color:green;">CHECK</button></a></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="footer">
+            <p>Welcome to my masterpiece!</p>
+        </div>
+    </div>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sapura Inventory System</title>
+    <style>
+        body {
+            background-color: #ffffff; /* Dark background */
+            color: #0a0000; /* Light text */
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            color: #070707;
+            text-shadow: 0 0 10px #060606, 0 0 20px #ffffff;
+            text-decoration: underline;
+            margin: 20px 0;
+        }
+
+        a {
+            color: #00ffcc; /* Neon teal for links */
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80%;
+            margin: 0 auto;
+            background-color: #faf8f8; /* Dark background for container */
+            padding: 20px;
+            border: 2px solid #ffffff; /* Light border */
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+
+        .sidebar {
+            width: 100px;
+            border-right: 2px solid #ffffff;
+        }
+
+        table {
+            color: #ffffff;
+            border: 1px solid #ffffff;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        td {
+            padding: 15px;
+            border: 1px solid #ffffff;
+        }
+
+        .content {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+        }
+
+        .footer {
+            background-color: #000000; /* Black background for footer */
+            color: #ffffff; /* White text */
+            padding: 10px;
+            font-size: 12px;
+            width: 100%;
+            border-top: 2px solid #ffffff;
+        }
+
+        marquee {
+            font-size: 18px;
+            color: #000403; /* Neon teal for marquee */
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            color: #000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button.in {
+            background-color: #00ffcc; /* Neon teal for IN button */
+            color: #000;
+        }
+
+        button.out {
+            background-color: #ff0000; /* Red for OUT button */
+            color: #fff;
+        }
+
+        button.check {
+            background-color: #00ff00; /* Green for CHECK button */
+            color: #000;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .content {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+                padding: 15px;
+                margin-bottom: 10px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>My Name is {{ username }}!</h1>
+
+        <marquee behavior="scroll" direction="left">Demi Agamaku, Bangsaku, Tanahairku!</marquee>
+
+        <div class="content">
+            <table>
+                <tr>
+                    <td><a href='in'><button class="in" type="button">IN</button></a></td>
+                    <td><a href="out"><button class="out" type="button">OUT</button></a></td>
+                    <td><a href="check"><button class="check" type="button">CHECK</button></a></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="footer">
+            <p>Welcome to the Futuristic Inventory System!</p>
+        </div>
+    </div>
+</body>
+</html>

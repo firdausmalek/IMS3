@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Products</title>
+    <style>
+        /* Black-and-white futuristic theme */
+        body {
+            background-color: #ffffff; /* Dark background */
+            color: #ffffff; /* Light text */
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1, h2 {
+            color: #ffffff;
+            text-shadow: 0 0 10px #ffffff, 0 0 20px #ffffff;
+            margin-bottom: 20px;
+        }
+
+        form {
+            background-color: #ffffff; /* Form background */
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 2px solid #ffffff;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+            display: inline-block;
+        }
+
+        label {
+            color: #000000;
+            font-size: 1.2rem;
+        }
+
+        input[type="text"],
+        input[type="submit"] {
+            padding: 10px;
+            font-size: 1.1rem;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            background-color: #333;
+            color: #ffffff;
+        }
+
+        input[type="submit"] {
+            background-color: #e2e2e200;
+            color: #000;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #ffffff;
+            transform: translateY(-3px);
+            box-shadow: 0 0 15px #00ffcc;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: #000000;
+            border: 1px solid #ffffff;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+
+        table, th, td {
+            border: 1px solid #ffffff;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            color: #ffffff;
+        }
+
+        th {
+            background-color: #ffffff;
+            color: #000;
+        }
+
+        tr:nth-child(even) {
+            background-color: #333;
+        }
+
+        /* Responsive design */
+        @media only screen and (max-width: 600px) {
+            form {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Manage Products</h1>
+
+    <!-- Form to add a product -->
+    <h2>Input Serial Number</h2>
+    <form action="{{ url_for('add_product') }}" method="POST">
+        <label for="Serial_Number">Serial Number:</label>
+        <input type="text" id="Serial_Number" name="Serial_Number" required><br>
+        <input type="submit" value="Add to Table">
+    </form>
+
+    <!-- Form to download CSV -->
+    <form action="{{ url_for('download_csv') }}" method="POST">
+        <input type="submit" value="Download CSV">
+    </form>
+
+    <!-- Flash messages display -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Display the existing products in a table -->
+    <h2>Product List</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Serial Number</th>
+                <th>Name</th>
+                <th>Location</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in inventory %}
+            <tr>
+                <td>{{ product[2] }}</td> <!-- Serial Number -->
+                <td>{{ product[1] }}</td> <!-- Name -->
+                <td>{{ product[6] }}</td> <!-- Location -->
+                <td>{{ product[5] }}</td> <!-- Status -->
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4">No products added yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

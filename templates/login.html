@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        /* Import futuristic font */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Orbitron', sans-serif;
+            background: #000; /* Black background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            color: #fff; /* White text */
+        }
+
+        /* Animated background with white particles */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #222, #000);
+            z-index: -2;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: pulse 10s infinite alternate;
+            transform: translateX(-50%);
+            z-index: -1;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.3; }
+            100% { transform: scale(1.2); opacity: 0.1; }
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 3rem;
+            color: #fff; /* White text */
+            text-shadow: 0 0 30px #080808, 0 0 60px rgba(8, 8, 8, 0.5);
+            margin-bottom: 40px;
+        }
+
+        .form-container {
+            background: rgba(0, 0, 0, 0.8); /* Dark background with some opacity */
+            border: 2px solid #fff; /* White border */
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8); /* White shadow */
+            text-align: center;
+            width: 400px;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        label {
+            font-size: 1.2rem;
+            display: block;
+            margin-bottom: 10px;
+            color: #0b0a0a; /* White text */
+            text-shadow: 0 0 10px #0a0a0a;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.1); /* Light gray input background */
+            color: #0e0e0e; /* White text */
+            font-size: 1.1rem;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            background-color: rgba(246, 243, 243, 0.2); /* Slightly lighter gray on focus */
+            box-shadow: 0 0 20px #0c0c0c, 0 0 30px rgba(6, 6, 6, 0.5);
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #fff; /* White button */
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            color: #000; /* Black text */
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            transition: background-color 0.4s ease, transform 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #eee; /* Light gray on hover */
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 1);
+        }
+
+        /* Glowing borders */
+        .form-container::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            border-radius: 15px;
+            background: linear-gradient(45deg, #fff, #eee, #fff, #eee);
+            background-size: 400%;
+            animation: glowing 10s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes glowing {
+            0% { background-position: 0 0; }
+            50% { background-position: 100% 100%; }
+            100% { background-position: 0 0; }
+        }
+
+        /* Style for error messages */
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 20px;
+            color: #ff5555;
+        }
+
+        ul li {
+            text-align: center;
+            font-size: 1rem;
+            text-shadow: 0 0 10px rgba(255, 85, 85, 0.6);
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Smart Inventory Management System</h1>
+    <div class="form-container">
+        <form action="{{ url_for('login') }}" method="POST">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required><br>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required><br>
+
+            <input type="submit" value="Login">
+        </form>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+    </div>
+</body>
+</html>

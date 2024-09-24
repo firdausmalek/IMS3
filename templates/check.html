@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Table Data</title>
+</head>
+<body>
+    <h1>Table Data</h1>
+    <div id="tableContainer"></div>
+
+    <script>
+        async function loadTableData() {
+            try {
+                const response = await fetch('/table_data.json');
+                const tableData = await response.json();
+
+                let tableHtml = '<table border="1"><thead><tr>';
+                tableData[0].forEach(header => {
+                    tableHtml += `<th>${header}</th>`;
+                });
+                tableHtml += '</tr></thead><tbody>';
+
+                tableData.slice(1).forEach(row => {
+                    tableHtml += '<tr>';
+                    row.forEach(cell => {
+                        tableHtml += `<td>${cell}</td>`;
+                    });
+                    tableHtml += '</tr>';
+                });
+
+                tableHtml += '</tbody></table>';
+                document.getElementById('tableContainer').innerHTML = tableHtml;
+            } catch (error) {
+                console.error('Error loading table data:', error);
+            }
+        }
+
+        loadTableData();
+    </script>
+</body>
+</html>

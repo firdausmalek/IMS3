@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form</title>
+    <style>
+        body {
+            background-color: #969640;
+            font-family: "Times New Roman", Times, serif;
+            text-align: center;
+        }
+        #login-form {
+            width: 500px;
+            margin: 50px auto;
+            padding: 50px;
+            border: 2px solid black;
+            background-color: #FFFFFF;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 18px;
+            color: #0000FF;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #000000;
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #0000FF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #FF0000;
+        }
+        #message {
+            margin-top: 20px;
+            color: red;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Login Form -->
+    <div id="login-form">
+        <h1>Login</h1>
+        <form id="login" onsubmit="event.preventDefault(); validateLogin();">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            
+            <input type="submit" value="Login">
+        </form>
+        <div id="message"></div> <!-- Display success or error message -->
+    </div>
+
+    <script>
+        // Define accepted username and password
+        const acceptedUsername = "user123";
+        const acceptedPassword = "123";
+
+        // Validate login credentials
+        function validateLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const message = document.getElementById('message');
+
+            // Check if credentials match
+            if (username === acceptedUsername && password === acceptedPassword) {
+                message.style.color = 'green';
+                message.textContent = "Login successful! Redirecting...";
+
+                localStorage.setItem('username', username);
+
+                // Redirect to welcome page
+                setTimeout(function() {
+                    window.location.href = 'submit.html';
+
+                }, 1000); // Wait 1 second before redirect
+
+            } else {
+                message.style.color = 'red';
+                message.textContent = "Invalid username or password!";
+                document.getElementById('password').value = ''; // Clear password field
+            }
+        }
+    </script>
+
+</body>
+</html>
